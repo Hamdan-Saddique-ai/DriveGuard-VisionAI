@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Drowsiness Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .video-section {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .video-container {
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        #videoCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .info-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-title {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .status-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .status-value.awake {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-value.drowsy {
+            background: #f8d7da;
+            color: #721c24;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .metric-value {
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .alert-badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .status-value {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Driver Drowsiness Detection System</h1>
+            <p>Real-time monitoring using AI and Computer Vision</p>
+        </div>
+
+        <div class="content">
+            <div class="video-section">
+                <div class="video-container">
+                    <canvas id="videoCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="status-card">
+                    <div class="status-title">Driver Status</div>
+                    <div id="statusDisplay" class="status-value awake">Awake</div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-title">Metrics</div>
+                    <div class="metric">
+                        <span class="metric-label">Eye Aspect Ratio (EAR)</span>
+                        <span id="earValue" class="metric-value">0.00</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Mouth Aspect Ratio (MAR)</span>
+                        <span id="marValue" class="metric-value">0.00</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Alert Status</span>
+                        <span id="alertStatus" class="metric-value">Normal</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-title">System Info</div>
+                    <div class="metric">
+                        <span class="metric-label">Connection</span>
+                        <span id="connectionStatus" class="metric-value">Connecting...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Detection</span>
+                        <span class="metric-value">Active</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="refreshPage()">🔄 Refresh</button>
+                    <button class="btn btn-danger" onclick="closePage()">❌ Close</button>
+                </div>
+
+                <div id="warningAlert" class="alert-badge" style="display: none;">
+                    ⚠️ DROWSINESS DETECTED! PLEASE WAKE UP! ⚠️
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>⚠️ Safety First: This system is for assistance only. Always drive responsibly and take breaks when tired.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const canvas = document.getElementById('videoCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let animationId = null;
+
+        // Update status display
+        function updateStatus(status, ear, mar) {
+            const statusDiv = document.getElementById('statusDisplay');
+            const earSpan = document.getElementById('earValue');
+            const marSpan = document.getElementById('marValue');
+            const warningAlert = document.getElementById('warningAlert');
+            const alertStatus = document.getElementById('alertStatus');
+            
+            statusDiv.textContent = status;
+            earSpan.textContent = ear;
+            marSpan.textContent = mar;
+            
+            if (status === 'Drowsy') {
+                statusDiv.className = 'status-value drowsy';
+                warningAlert.style.display = 'block';
+                alertStatus.textContent = '⚠️ ALERT ACTIVE';
+                alertStatus.style.color = '#dc3545';
+            } else {
+                statusDiv.className = 'status-value awake';
+                warningAlert.style.display = 'none';
+                alertStatus.textContent = 'Normal';
+                alertStatus.style.color = '#28a745';
+            }
+        }
+
+        // Handle video frames
+        socket.on('video_frame', (data) => {
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = 'data:image/jpeg;base64,' + data.frame;
+            
+            updateStatus(data.status, data.ear, data.mar);
+        });
+
+        // Connection events
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            document.getElementById('connectionStatus').textContent = 'Connected ✅';
+            document.getElementById('connectionStatus').style.color = '#28a745';
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            document.getElementById('connectionStatus').textContent = 'Disconnected ❌';
+            document.getElementById('connectionStatus').style.color = '#dc3545';
+        });
+
+        socket.on('connected', (data) => {
+            console.log(data.data);
+        });
+
+        // Helper functions
+        function refreshPage() {
+            location.reload();
+        }
+
+        function closePage() {
+            if (confirm('Are you sure you want to close the application?')) {
+                window.close();
+            }
+        }
+
+        // Show instructions
+        console.log('Driver Drowsiness Detection System Started');
+        console.log('Make sure your face is clearly visible to the camera');
+    </script>
+</body>
+</html>
