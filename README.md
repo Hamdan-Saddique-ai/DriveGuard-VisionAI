@@ -57,33 +57,28 @@ An AI-powered driver monitoring system that detects drowsiness in real time usin
 
 ## 🚀 How It Works
 
-```mermaid
-flowchart LR
-A[Camera Input] --> B[Face Detection]
-B --> C[Eye Tracking]
-C --> D[EAR Calculation]
-D --> E{Eyes Closed?}
-E -->|Yes| F[Trigger Alarm 🚨]
-E -->|No| G[Normal State ✅]
-📦 Installation
-git clone https://github.com/yourusername/DriveGuard-VisionAI.git
-cd DriveGuard-VisionAI
-pip install -r requirements.txt
-python main.py
-🧪 Future Improvements
-📱 Mobile alerts (SMS / App)
-🧠 Deep learning model integration
-📊 Driver fatigue dashboard
-🌙 Night vision support
-📸 Screenshots
-<p align="center"> <img src="https://via.placeholder.com/400x250.png?text=Detection+View"/> <img src="https://via.placeholder.com/400x250.png?text=Alert+System"/> </p>
-🤝 Contributing
+flowchart LR     
+A[Camera Input] --> B[Face Detection]    
+B --> C[Eye Tracking]     
+C --> D[EAR Calculation]    
+D --> E{Eyes Closed?}             
+E -->|Yes| F[Trigger Alarm 🚨]     
+E -->|No| G[Normal State ✅]   
+ 
+## 🧪 Future Improvements
+📱 Mobile alerts (SMS / App)  
+🧠 Deep learning model integration  
+📊 Driver fatigue dashboard           
+🌙 Night vision support         
+
+## 🤝 Contributing
 
 Contributions are welcome!
 Feel free to fork this repo and submit a pull request 🚀
 
-📜 License
+## 📜 License
 
 This project is licensed under the MIT License.
-
+## Author
+**Hamdan Saddique**
 <p align="center"> 💡 Built with passion for safer roads 🚗❤️ </p>
