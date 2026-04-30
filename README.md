@@ -18,7 +18,8 @@ An AI-powered driver monitoring system that detects drowsiness in real time usin
 
 ## 🎥 Demo Preview
 <p align="center">
-  <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="500"/>
+  <img width="1022" height="1171" alt="Image" src="https://github.com/user-attachments/assets/e99e4543-5a7f-4469-b03e-b5c184e84858" />
+
 </p>
 
 ---
